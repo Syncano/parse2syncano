@@ -1,0 +1,29 @@
+# -*- coding: utf-8 -*-
+
+import requests
+
+from mappers.rest_map import PARSE_API_MAP
+
+
+class ParseConnection(object):
+
+    BASE_URL = 'https://api.parse.com/{url}/'
+
+    def __init__(self, application_id, master_key):
+        self.application_id = application_id
+        self.master_key = master_key
+
+    def request(self, method, url, params=None, headers=None):
+        params = params or {}
+        headers = headers or {}
+        url = self.BASE_URL.format(url=url)
+        headers.update({
+            'X-Parse-Application-Id': self.application_id,
+            'X-Parse-Master-Key': self.master_key,
+            'Content-Type': 'application/json'
+        })
+        response = requests.get(url, params=params, headers=headers)
+        return response.json()
+
+    def get_schemas(self):
+        return self.request('GET', PARSE_API_MAP['schemas'])['results']
