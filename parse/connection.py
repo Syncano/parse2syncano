@@ -27,3 +27,6 @@ class ParseConnection(object):
 
     def get_schemas(self):
         return self.request('GET', PARSE_API_MAP['schemas'])['results']
+
+    def get_class_objects(self, class_name):
+        return self.request('GET', PARSE_API_MAP['classes'].format(class_name=class_name))
