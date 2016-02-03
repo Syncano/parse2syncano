@@ -39,7 +39,8 @@ class ClassAttributeMapper(object):
         for key, value in syncano_object.iteritems():
             if isinstance(value, dict) and '__type' in value:
                 if value['__type'] == 'Date':
-                    syncano_object[key] = None #value['iso']
+                    syncano_object[key] = value['iso']
+            print(key, value)
         return syncano_object
 
     @classmethod

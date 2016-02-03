@@ -56,7 +56,7 @@ class SyncanoTransfer(object):
             for object in objects['results']:
                 s_class = instance.classes.get(name=syncano_class)
                 syncano_fields = ClassAttributeMapper.get_fields(object.keys())
-                syncano_object = {key: value for key, value in object.iteritems() if key in syncano_fields}
+                syncano_object = {key.lower(): value for key, value in object.iteritems() if key in syncano_fields}
                 syncano_object = ClassAttributeMapper.process_object(syncano_object)
                 s_class.objects.create(**syncano_object)
 
