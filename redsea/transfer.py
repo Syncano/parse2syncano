@@ -42,23 +42,24 @@ class SyncanoTransfer(object):
     def transfer_classes(self, instance):
         schemas = self.parse.get_schemas()
 
-        for schema in schemas:
-            class_name, syncano_schema = ClassAttributeMapper.create_schema(schema)
-            self.data.add_class(syncano_class=class_name, parse_class=schema['className'])
+        for parse_schema in schemas:
+            class_name, syncano_schema = ClassAttributeMapper.create_schema(parse_schema)
+            self.data.add_class(syncano_name=class_name, syncano_schema=syncano_schema,
+                                parse_name=parse_schema['className'], parse_schema=parse_schema)
             try:
                 instance.classes.create(name=class_name, schema=syncano_schema)
             except:
                 log.error('Class already defined in this instance: {}/{}'.format(class_name, instance.name))
 
     def transfer_objects(self, instance):
-        for syncano_class, parse_class in self.data.classes:
-            objects = self.parse.get_class_objects(parse_class)
+        for class_to_process in self.data.sort_classes():
+            objects = self.parse.get_class_objects(class_to_process.parse_name)
             for object in objects['results']:
-                s_class = instance.classes.get(name=syncano_class)
-                syncano_fields = ClassAttributeMapper.get_fields(object.keys())
-                syncano_object = {key.lower(): value for key, value in object.iteritems() if key in syncano_fields}
-                syncano_object = ClassAttributeMapper.process_object(syncano_object)
-                s_class.objects.create(**syncano_object)
+                s_class = instance.classes.get(name=class_to_process.syncano_name)
+                syncano_object = ClassAttributeMapper.process_object(object, self.data.reference_map)
+                created_syncano_object = s_class.objects.create(**syncano_object)
+                self.data.reference_map[object['objectId']] = created_syncano_object.id
+
 
     def through_the_red_sea(self):
         instance = self.get_syncano_instance()

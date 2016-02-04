@@ -3,6 +3,8 @@
 import json
 from datetime import datetime
 
+from parse.constants import ParseFieldTypeE
+
 
 class ClassAttributeMapper(object):
     map = {
@@ -12,6 +14,7 @@ class ClassAttributeMapper(object):
         'String': 'string',
         'Array': 'text',
         'Object': 'text',
+        'Pointer': 'reference',
     }
 
     @classmethod
@@ -31,17 +34,23 @@ class ClassAttributeMapper(object):
         for field in parse_fields:
             if field in FIELDS_TO_SKIP:
                 continue
-            fields.append(field)
+            fields.append(field.lower())
         return fields
 
     @classmethod
-    def process_object(cls, syncano_object):
-        for key, value in syncano_object.iteritems():
+    def process_object(cls, parse_object, reference_map):
+        syncano_fields = ClassAttributeMapper.get_fields(parse_object.keys())
+        processed_object = {}
+        for key, value in parse_object.iteritems():
             if isinstance(value, dict) and '__type' in value:
-                if value['__type'] == 'Date':
-                    syncano_object[key] = value['iso']
-            print(key, value)
-        return syncano_object
+                if value['__type'] == ParseFieldTypeE.DATE:
+                    processed_object[key.lower()] = value['iso']
+                if value['__type'] == ParseFieldTypeE.POINTER:
+                    processed_object[key.lower()] = reference_map.get(value['objectId'])  # must be processed
+            else:
+                if key.lower() in syncano_fields:
+                    processed_object[key.lower()] = value
+        return processed_object
 
     @classmethod
     def create_schema(cls, parse_schema):
@@ -56,19 +65,27 @@ class ClassAttributeMapper(object):
         schema = []
 
         for field, field_meta in parse_schema['fields'].iteritems():
+
             if field not in FIELDS_TO_SKIP:
                 type = field_meta['type']
-                if type in ['Relation', 'Pointer']:  # TODO: skip for now
+                if type in ['Relation']:  # TODO: skip for now
                     continue
 
                 new_type = ClassAttributeMapper.map[type]
 
                 if field == 'objectId':
-                    schema.append({'name': field, 'type': new_type, 'filter_index': True})
+                    schema.append({'name': field.lower(), 'type': new_type, 'filter_index': True})
+                elif new_type == 'reference':
+                    schema.append({'name': field.lower(), 'type': new_type,
+                                   'target': cls.normalize_class_name(field_meta['targetClass'])})
                 else:
-                    schema.append({'name': field, 'type': new_type})
-
-        name = parse_schema['className']
-        if name.startswith('_'):
-            name = 'internal_' + name[1:]
+                    schema.append({'name': field.lower(), 'type': new_type})
+        name = cls.normalize_class_name(parse_schema['className'])
         return name, schema
+
+    @classmethod
+    def normalize_class_name(cls, class_name):
+        name = class_name
+        if name.startswith('_'):
+            name = 'internal_' + name[1:].lower()
+        return name
