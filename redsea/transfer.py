@@ -6,7 +6,7 @@ import syncano
 from mappers.class_map import ClassAttributeMapper
 from parse.connection import ParseConnection
 from redsea.aggregation import DataAggregated
-from settings import PARSE_APPLICATION_ID, SYNCANO_INSTANCE_NAME
+from settings import PARSE_APPLICATION_ID, SYNCANO_INSTANCE_NAME, SYNCANO_ADMIN_API_KEY
 from settings import PARSE_MASTER_KEY
 
 # create console handler and set level to debug
@@ -26,7 +26,7 @@ class SyncanoTransfer(object):
             master_key=PARSE_MASTER_KEY,
         )
         self.syncano = syncano.connect(
-            api_key='6b78a465212cc2eb30e741d2da3838a3f7f5024e',
+            api_key=SYNCANO_ADMIN_API_KEY,
         )
 
         self.data = DataAggregated()
@@ -53,13 +53,20 @@ class SyncanoTransfer(object):
 
     def transfer_objects(self, instance):
         for class_to_process in self.data.sort_classes():
-            objects = self.parse.get_class_objects(class_to_process.parse_name)
-            for object in objects['results']:
-                s_class = instance.classes.get(name=class_to_process.syncano_name)
-                syncano_object = ClassAttributeMapper.process_object(object, self.data.reference_map)
-                created_syncano_object = s_class.objects.create(**syncano_object)
-                self.data.reference_map[object['objectId']] = created_syncano_object.id
+            limit = 100
+            skip = 0
 
+            while True:
+                objects = self.parse.get_class_objects(class_to_process.parse_name, limit=limit, skip=skip)
+                if not len(objects['results']):
+                    break
+                limit += 100
+                skip += 100
+                for object in objects['results']:
+                    s_class = instance.classes.get(name=class_to_process.syncano_name)
+                    syncano_object = ClassAttributeMapper.process_object(object, self.data.reference_map)
+                    created_syncano_object = s_class.objects.create(**syncano_object)
+                    self.data.reference_map[object['objectId']] = created_syncano_object.id
 
     def through_the_red_sea(self):
         instance = self.get_syncano_instance()

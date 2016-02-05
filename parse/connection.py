@@ -13,7 +13,7 @@ class ParseConnection(object):
         self.application_id = application_id
         self.master_key = master_key
 
-    def request(self, method, url, params=None, headers=None):
+    def request(self, url, params=None, headers=None):
         params = params or {}
         headers = headers or {}
         url = self.BASE_URL.format(url=url)
@@ -26,7 +26,8 @@ class ParseConnection(object):
         return response.json()
 
     def get_schemas(self):
-        return self.request('GET', PARSE_API_MAP['schemas'])['results']
+        return self.request(PARSE_API_MAP['schemas'])['results']
 
-    def get_class_objects(self, class_name):
-        return self.request('GET', PARSE_API_MAP['classes'].format(class_name=class_name))
+    def get_class_objects(self, class_name, limit=1000, skip=0):
+        return self.request(PARSE_API_MAP['classes'].format(class_name=class_name), params={'limit': limit,
+                                                                                            'skip': skip})
