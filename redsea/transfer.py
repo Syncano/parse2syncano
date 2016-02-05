@@ -74,12 +74,12 @@ class SyncanoTransfer(object):
                         created_objects = s_class.objects.batch(
                             *objects_to_add
                         )
-
                         for parse_id, syncano_id in zip(parse_ids, [o.id for o in created_objects]):
                             self.data.reference_map[parse_id] = syncano_id
 
                         objects_to_add = []
                         parse_ids = []
+                        return
 
                     batched_syncano_object = s_class.objects.as_batch().create(**syncano_object)
                     objects_to_add.append(batched_syncano_object)

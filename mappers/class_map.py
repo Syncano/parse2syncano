@@ -42,11 +42,16 @@ class ClassAttributeMapper(object):
         syncano_fields = ClassAttributeMapper.get_fields(parse_object.keys())
         processed_object = {}
         for key, value in parse_object.iteritems():
-            if isinstance(value, dict) and '__type' in value:
-                if value['__type'] == ParseFieldTypeE.DATE:
-                    processed_object[key.lower()] = value['iso']
-                if value['__type'] == ParseFieldTypeE.POINTER:
-                    processed_object[key.lower()] = reference_map.get(value['objectId'])  # must be processed
+            if isinstance(value, dict):
+                if '__type' in value:
+                    if value['__type'] == ParseFieldTypeE.DATE:
+                        processed_object[key.lower()] = value['iso']
+                    if value['__type'] == ParseFieldTypeE.POINTER:
+                        processed_object[key.lower()] = reference_map.get(value['objectId'])
+            #     else:  # and 'Object' case
+            #         processed_object[key.lower()] = json.dumps(value)
+            # elif isinstance(value, list):
+            #     processed_object[key.lower()] = json.dumps(value)  # TODO: uncomment this after fields will be supported
             else:
                 if key.lower() in syncano_fields:
                     processed_object[key.lower()] = value
