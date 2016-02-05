@@ -6,7 +6,7 @@ import syncano
 from mappers.class_map import ClassAttributeMapper
 from parse.connection import ParseConnection
 from redsea.aggregation import DataAggregated
-from settings import PARSE_APPLICATION_ID, SYNCANO_INSTANCE_NAME, SYNCANO_ADMIN_API_KEY
+from settings import PARSE_APPLICATION_ID, SYNCANO_INSTANCE_NAME, SYNCANO_ADMIN_API_KEY, PARSE_PAGINATION_LIMIT
 from settings import PARSE_MASTER_KEY
 
 # create console handler and set level to debug
@@ -53,15 +53,15 @@ class SyncanoTransfer(object):
 
     def transfer_objects(self, instance):
         for class_to_process in self.data.sort_classes():
-            limit = 100
+            limit = PARSE_PAGINATION_LIMIT
             skip = 0
 
             while True:
                 objects = self.parse.get_class_objects(class_to_process.parse_name, limit=limit, skip=skip)
                 if not len(objects['results']):
                     break
-                limit += 100
-                skip += 100
+                limit += PARSE_PAGINATION_LIMIT
+                skip += PARSE_PAGINATION_LIMIT
                 for object in objects['results']:
                     s_class = instance.classes.get(name=class_to_process.syncano_name)
                     syncano_object = ClassAttributeMapper.process_object(object, self.data.reference_map)
