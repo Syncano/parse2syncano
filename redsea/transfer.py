@@ -1,22 +1,14 @@
 # -*- coding: utf-8 -*-
-import logging
 import time
 
 import syncano
 from mappers.class_map import ClassAttributeMapper
+from moses_log import log
 from parse.connection import ParseConnection
 from redsea.aggregation import DataAggregated
 from settings import (PARSE_APPLICATION_ID, PARSE_MASTER_KEY,
                       PARSE_PAGINATION_LIMIT, SYNCANO_ADMIN_API_KEY,
                       SYNCANO_APIROOT, SYNCANO_INSTANCE_NAME)
-
-# create console handler and set level to debug
-handler = logging.StreamHandler()
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-log = logging.getLogger('moses')
-log.addHandler(handler)
 
 
 class SyncanoTransfer(object):

@@ -2,6 +2,7 @@
 
 import json
 
+from moses_log import log
 from parse.constants import ParseFieldTypeE
 
 
@@ -50,7 +51,14 @@ class ClassAttributeMapper(object):
                 else:  # and 'Object' case
                     processed_object[key.lower()] = json.dumps(value)
             elif isinstance(value, list):
-                processed_object[key.lower()] = json.dumps(value)
+
+                for i, item in enumerate(value):
+                    if isinstance(item, dict):
+                        if item.get('__type') == ParseFieldTypeE.POINTER:
+                            log.warn('Array of pointers not supported, writing: {}'.format(item.get('objectId')))
+                            value[i] = item['objectId']
+                values_list = json.dumps(value)
+                processed_object[key.lower()] = values_list
             else:
                 if key.lower() in syncano_fields:
                     processed_object[key.lower()] = value
