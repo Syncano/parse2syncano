@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import json
-from datetime import datetime
 
 from parse.constants import ParseFieldTypeE
 
@@ -12,8 +11,8 @@ class ClassAttributeMapper(object):
         'Date': 'datetime',
         'Boolean': 'boolean',
         'String': 'string',
-        'Array': 'text',
-        'Object': 'text',
+        'Array': 'array',
+        'Object': 'object',
         'Pointer': 'reference',
     }
 
@@ -48,10 +47,10 @@ class ClassAttributeMapper(object):
                         processed_object[key.lower()] = value['iso']
                     if value['__type'] == ParseFieldTypeE.POINTER:
                         processed_object[key.lower()] = reference_map.get(value['objectId'])
-            #     else:  # and 'Object' case
-            #         processed_object[key.lower()] = json.dumps(value)
-            # elif isinstance(value, list):
-            #     processed_object[key.lower()] = json.dumps(value)  # TODO: uncomment this after fields will be supported
+                else:  # and 'Object' case
+                    processed_object[key.lower()] = json.dumps(value)
+            elif isinstance(value, list):
+                processed_object[key.lower()] = json.dumps(value)
             else:
                 if key.lower() in syncano_fields:
                     processed_object[key.lower()] = value

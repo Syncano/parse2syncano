@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 import logging
+import time
 
-import sys
-
+import syncano
 from mappers.class_map import ClassAttributeMapper
 from parse.connection import ParseConnection
 from redsea.aggregation import DataAggregated
-from settings import PARSE_APPLICATION_ID, SYNCANO_INSTANCE_NAME, SYNCANO_ADMIN_API_KEY, PARSE_PAGINATION_LIMIT, \
-    SYNCANO_APIROOT
-from settings import PARSE_MASTER_KEY
-import time
+from settings import (PARSE_APPLICATION_ID, PARSE_MASTER_KEY,
+                      PARSE_PAGINATION_LIMIT, SYNCANO_ADMIN_API_KEY,
+                      SYNCANO_APIROOT, SYNCANO_INSTANCE_NAME)
 
 # create console handler and set level to debug
 handler = logging.StreamHandler()
@@ -51,8 +50,10 @@ class SyncanoTransfer(object):
             class_name, syncano_schema = ClassAttributeMapper.create_schema(parse_schema)
             self.data.add_class(syncano_name=class_name, syncano_schema=syncano_schema,
                                 parse_name=parse_schema['className'], parse_schema=parse_schema)
+
+        for class_to_process in self.data.sort_classes():
             try:
-                instance.classes.create(name=class_name, schema=syncano_schema)
+                instance.classes.create(name=class_to_process.syncano_name, schema=class_to_process.syncano_schema)
             except Exception as e:
                 log.error('Class already defined in this instance: {}/{}'.format(class_name, instance.name))
                 log.error(e.message)
@@ -99,8 +100,8 @@ class SyncanoTransfer(object):
                     for parse_id, syncano_id in zip(parse_ids, [o.id for o in created_objects]):
                         self.data.reference_map[parse_id] = syncano_id
                     log.warning('Processed {} elements of {} in class: {}'.format(len(objects_to_add),
-                                                                               len(objects_to_add),
-                                                                               class_to_process.syncano_name))
+                                                                                  len(objects_to_add),
+                                                                                  class_to_process.syncano_name))
 
     def get_class(self, instance, class_name):
         s_class = self.syncano_classes.get(class_name)
