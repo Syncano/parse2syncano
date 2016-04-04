@@ -2,7 +2,7 @@
 
 import requests
 
-from mappers.rest_map import PARSE_API_MAP
+from parse.rest_map import PARSE_API_MAP
 
 
 class ParseConnection(object):

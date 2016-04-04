@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+from collections import defaultdict
 
 
 class ClassAggregate(object):
@@ -13,7 +16,7 @@ class DataAggregated(object):
 
     def __init__(self):
         self.classes = []
-        self.reference_map = {}
+        self.reference_map = defaultdict(dict)
 
     def add_class(self, syncano_name, syncano_schema, parse_name, parse_schema):
         self.classes.append(

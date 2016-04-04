@@ -2,11 +2,26 @@
 
 import json
 
-from moses_log import log
+from log_handler import log
 from parse.constants import ParseFieldTypeE
 
 
-class ClassAttributeMapper(object):
+class SyncanoSchema(object):
+
+    def __init__(self, class_name, schema, relations):
+        self.class_name = class_name
+        self.schema = schema
+        self.relations = relations
+
+    def process_relations(self):
+        pass
+
+    @property
+    def has_relations(self):
+        return bool(self.relations)
+
+
+class ClassProcessor(object):
     map = {
         'Number': 'integer',
         'Date': 'datetime',
@@ -39,7 +54,7 @@ class ClassAttributeMapper(object):
 
     @classmethod
     def process_object(cls, parse_object, reference_map):
-        syncano_fields = ClassAttributeMapper.get_fields(parse_object.keys())
+        syncano_fields = ClassProcessor.get_fields(parse_object.keys())
         processed_object = {}
         for key, value in parse_object.iteritems():
             if isinstance(value, dict):
@@ -75,15 +90,16 @@ class ClassAttributeMapper(object):
         FIELDS_TO_SKIP = ['updatedAt', 'createdAt', 'ACL']  # TODO: handle ACL later on
 
         schema = []
-
+        relations = []
         for field, field_meta in parse_schema['fields'].iteritems():
-
             if field not in FIELDS_TO_SKIP:
                 type = field_meta['type']
                 if type in ['Relation']:  # TODO: skip for now
+                    field_meta['targetClass'] = cls.normalize_class_name(field_meta['targetClass'])
+                    relations.append({field: field_meta})
                     continue
 
-                new_type = ClassAttributeMapper.map[type]
+                new_type = ClassProcessor.map[type]
 
                 if field == 'objectId':
                     schema.append({'name': field.lower(), 'type': new_type, 'filter_index': True})
@@ -93,7 +109,7 @@ class ClassAttributeMapper(object):
                 else:
                     schema.append({'name': field.lower(), 'type': new_type})
         name = cls.normalize_class_name(parse_schema['className'])
-        return name, schema
+        return SyncanoSchema(class_name=name, schema=schema, relations=relations)
 
     @classmethod
     def normalize_class_name(cls, class_name):

@@ -1,6 +1,7 @@
+# /bin/python
 # -*- coding: utf-8 -*-
 
-from redsea.transfer import SyncanoTransfer
+from migrations.transfer import SyncanoTransfer
 
 transfer = SyncanoTransfer()
 
