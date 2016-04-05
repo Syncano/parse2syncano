@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import json
 import requests
 
 from parse.rest_map import PARSE_API_MAP
@@ -28,6 +28,8 @@ class ParseConnection(object):
     def get_schemas(self):
         return self.request(PARSE_API_MAP['schemas'])['results']
 
-    def get_class_objects(self, class_name, limit=1000, skip=0):
-        return self.request(PARSE_API_MAP['classes'].format(class_name=class_name), params={'limit': limit,
-                                                                                            'skip': skip})
+    def get_class_objects(self, class_name, limit=1000, skip=0, query=None):
+        params = {'limit': limit, 'skip': skip}
+        if query:
+            params.update({'where': json.dumps(query)})
+        return self.request(PARSE_API_MAP['classes'].format(class_name=class_name), params=params)

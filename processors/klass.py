@@ -95,7 +95,7 @@ class ClassProcessor(object):
             if field not in FIELDS_TO_SKIP:
                 type = field_meta['type']
                 if type in ['Relation']:  # TODO: skip for now
-                    field_meta['targetClass'] = cls.normalize_class_name(field_meta['targetClass'])
+                    field_meta['targetClass'] = field_meta['targetClass']
                     relations.append({field: field_meta})
                     continue
 

@@ -48,24 +48,37 @@ class SyncanoTransfer(object):
                                 {
                                     'name': field_name,
                                     'type': 'reference',
-                                    'target': relation_meta['targetClass']
+                                    'target': ClassProcessor.normalize_class_name(relation_meta['targetClass'])
                                 },
                             ]
-                            instance.classes.create(
-                                    name=relation_class_name,
-                                    schema=schema
-                            )
+
+                            try:
+                                instance.classes.create(
+                                        name=relation_class_name,
+                                        schema=schema
+                                )
+                            except Exception as e:
+                                log.error('Class already defined in this instance: {}/{}'.format(relation_class_name,
+                                                                                                 instance.name))
+                                log.error(e.message)
 
                             # get the parse classes now;
-                            query = {
-                                "$relatedTo": {
-                                    "object": {
-                                        "__type": "Pointer",
-                                        "className": "Author",
-                                        "objectId": "E8eyHQ3lHg"},
-                                    "key":"author"}
-                            }
-                            # https://api.parse.com/1/classes/Book?where=
+                            for parse_class_name, objects_id_map in self.data.reference_map.iteritems():
+                                if class_name == ClassProcessor.normalize_class_name(parse_class_name):
+                                    for parse_id, syncano_id in objects_id_map.iteritems():
+                                        query = {
+                                            "$relatedTo": {
+                                                "object": {
+                                                    "__type": "Pointer",
+                                                    "className": parse_class_name,
+                                                    "objectId": parse_id},
+                                                "key": field_name}
+                                        }
+                                        limit, skip = self.get_limit_and_skip()
+
+                                        objects = self.parse.get_class_objects(relation_meta['targetClass'],
+                                                                               limit=limit, skip=skip, query=query)
+
 
     def get_syncano_instance(self):
         try:
@@ -104,8 +117,8 @@ class SyncanoTransfer(object):
 
     def transfer_objects(self, instance):
         for class_to_process in self.data.sort_classes():
-            limit = PARSE_PAGINATION_LIMIT
-            skip = 0
+            limit, skip = self.get_limit_and_skip()
+
             processed = 0
             while True:
                 objects = self.parse.get_class_objects(class_to_process.parse_name, limit=limit, skip=skip)
@@ -125,7 +138,7 @@ class SyncanoTransfer(object):
                             *objects_to_add
                         )
                         for parse_id, syncano_id in zip(parse_ids, [o.id for o in created_objects]):
-                            self.data.reference_map[parse_id] = syncano_id
+                            self.data.reference_map[class_to_process.parse_name][parse_id] = syncano_id
 
                         objects_to_add = []
                         parse_ids = []
@@ -142,7 +155,7 @@ class SyncanoTransfer(object):
                         *objects_to_add
                     )
                     for parse_id, syncano_id in zip(parse_ids, [o.id for o in created_objects]):
-                        self.data.reference_map[parse_id] = syncano_id
+                        self.data.reference_map[class_to_process.parse_name][parse_id] = syncano_id
                     log.warning('Processed {} elements of {} in class: {}'.format(len(objects_to_add),
                                                                                   len(objects_to_add),
                                                                                   class_to_process.syncano_name))
@@ -153,6 +166,10 @@ class SyncanoTransfer(object):
             s_class = instance.classes.get(name=class_name)
             self.syncano_classes[class_name] = s_class
         return s_class
+
+    @classmethod
+    def get_limit_and_skip(cls):
+        return PARSE_PAGINATION_LIMIT, 0
 
     def through_the_red_sea(self):
         instance = self.get_syncano_instance()
