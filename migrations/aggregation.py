@@ -40,3 +40,6 @@ class DataAggregated(object):
         # sort with relations properly; # TODO: some cyclic references
 
         return without_relations + with_relations
+
+
+data_aggregate = DataAggregated()
