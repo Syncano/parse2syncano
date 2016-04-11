@@ -1,31 +1,29 @@
 # -*- coding: utf-8 -*-
 import time
 
-import syncano
-from mappers.class_map import ClassAttributeMapper
-from moses_log import log
-from parse.connection import ParseConnection
-from redsea.aggregation import DataAggregated
-from settings import (PARSE_APPLICATION_ID, PARSE_MASTER_KEY,
-                      PARSE_PAGINATION_LIMIT, SYNCANO_ADMIN_API_KEY,
-                      SYNCANO_APIROOT, SYNCANO_INSTANCE_NAME)
+from log_handler import log
+from migrations.aggregation import data_aggregate
+from migrations.mixins import (PaginationMixin, ParseConnectionMixin,
+                               SyncanoConnectionMixin)
+from migrations.relation import RelationProcessor
+from processors.klass import ClassProcessor
+from settings import PARSE_PAGINATION_LIMIT, SYNCANO_INSTANCE_NAME
 
 
-class SyncanoTransfer(object):
+class SyncanoTransfer(ParseConnectionMixin, SyncanoConnectionMixin, PaginationMixin):
 
     def __init__(self):
-        self.parse = ParseConnection(
-            application_id=PARSE_APPLICATION_ID,
-            master_key=PARSE_MASTER_KEY,
-        )
-        self.syncano = syncano.connect(
-            api_key=SYNCANO_ADMIN_API_KEY,
-            host=SYNCANO_APIROOT,
-            instance_name=SYNCANO_INSTANCE_NAME,
-        )
-
-        self.data = DataAggregated()
+        super(SyncanoTransfer, self).__init__()
+        self.data = data_aggregate
         self.syncano_classes = {}
+        self.relations = None
+
+    def set_relations(self, relations):
+        self.relations = relations
+
+    def process_relations(self, instance):
+        if self.relations:
+            RelationProcessor(relations=self.relations).process(instance=instance)
 
     def get_syncano_instance(self):
         try:
@@ -38,34 +36,46 @@ class SyncanoTransfer(object):
     def transfer_classes(self, instance):
         schemas = self.parse.get_schemas()
 
+        relations = []
+
         for parse_schema in schemas:
-            class_name, syncano_schema = ClassAttributeMapper.create_schema(parse_schema)
-            self.data.add_class(syncano_name=class_name, syncano_schema=syncano_schema,
+            syncano_schema = ClassProcessor.create_schema(parse_schema)
+            self.data.add_class(syncano_name=syncano_schema.class_name, syncano_schema=syncano_schema.schema,
                                 parse_name=parse_schema['className'], parse_schema=parse_schema)
+
+            if syncano_schema.has_relations:
+                relations.append(
+                    {
+                        syncano_schema.class_name: syncano_schema.relations
+                    }
+                )
 
         for class_to_process in self.data.sort_classes():
             try:
                 instance.classes.create(name=class_to_process.syncano_name, schema=class_to_process.syncano_schema)
             except Exception as e:
-                log.error('Class already defined in this instance: {}/{}'.format(class_name, instance.name))
+                log.error('Class already defined in this instance: {}/{}'.format(syncano_schema.class_name,
+                                                                                 instance.name))
                 log.error(e.message)
+
+        self.set_relations(relations)
 
     def transfer_objects(self, instance):
         for class_to_process in self.data.sort_classes():
-            limit = PARSE_PAGINATION_LIMIT
-            skip = 0
+            limit, skip = self.get_limit_and_skip()
+
             processed = 0
             while True:
                 objects = self.parse.get_class_objects(class_to_process.parse_name, limit=limit, skip=skip)
-                if not len(objects['results']):
+                if not objects['results']:
                     break
                 limit += PARSE_PAGINATION_LIMIT
                 skip += PARSE_PAGINATION_LIMIT
                 objects_to_add = []
                 parse_ids = []
-                for object in objects['results']:
+                for data_object in objects['results']:
                     s_class = self.get_class(instance=instance, class_name=class_to_process.syncano_name)
-                    syncano_object = ClassAttributeMapper.process_object(object, self.data.reference_map)
+                    syncano_object = ClassProcessor.process_object(data_object, self.data.reference_map)
 
                     if len(objects_to_add) == 10:
                         processed += 10
@@ -73,7 +83,7 @@ class SyncanoTransfer(object):
                             *objects_to_add
                         )
                         for parse_id, syncano_id in zip(parse_ids, [o.id for o in created_objects]):
-                            self.data.reference_map[parse_id] = syncano_id
+                            self.data.reference_map[class_to_process.parse_name][parse_id] = syncano_id
 
                         objects_to_add = []
                         parse_ids = []
@@ -82,7 +92,7 @@ class SyncanoTransfer(object):
 
                     batched_syncano_object = s_class.objects.as_batch().create(**syncano_object)
                     objects_to_add.append(batched_syncano_object)
-                    parse_ids.append(object['objectId'])
+                    parse_ids.append(data_object['objectId'])
 
                 # if objects to add is less than < 10 elements
                 if objects_to_add:
@@ -90,7 +100,7 @@ class SyncanoTransfer(object):
                         *objects_to_add
                     )
                     for parse_id, syncano_id in zip(parse_ids, [o.id for o in created_objects]):
-                        self.data.reference_map[parse_id] = syncano_id
+                        self.data.reference_map[class_to_process.parse_name][parse_id] = syncano_id
                     log.warning('Processed {} elements of {} in class: {}'.format(len(objects_to_add),
                                                                                   len(objects_to_add),
                                                                                   class_to_process.syncano_name))
@@ -106,3 +116,4 @@ class SyncanoTransfer(object):
         instance = self.get_syncano_instance()
         self.transfer_classes(instance)
         self.transfer_objects(instance)
+        self.process_relations(instance)
