@@ -2,7 +2,6 @@
 import time
 
 import syncano
-
 from log_handler import log
 from migrations.aggregation import DataAggregated
 from parse.connection import ParseConnection
@@ -54,8 +53,8 @@ class SyncanoTransfer(object):
 
                             try:
                                 instance.classes.create(
-                                        name=relation_class_name,
-                                        schema=schema
+                                    name=relation_class_name,
+                                    schema=schema
                                 )
                             except Exception as e:
                                 log.error('Class already defined in this instance: {}/{}'.format(relation_class_name,
