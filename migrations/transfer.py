@@ -78,7 +78,33 @@ class SyncanoTransfer(object):
 
                                         objects = self.parse.get_class_objects(relation_meta['targetClass'],
                                                                                limit=limit, skip=skip, query=query)
+                                        objects_to_add = []
+                                        for data_object in objects['results']:
+                                            s_class = self.get_class(instance=instance,
+                                                                     class_name=relation_class_name)
 
+                                            syncano_object = {
+                                                class_name: syncano_id,
+                                                field_name: self.data.reference_map[
+                                                    ClassProcessor.normalize_class_name(relation_meta['targetClass'])
+                                                ][data_object['objectId']],
+                                            }
+
+                                            if len(objects_to_add) == 10:
+                                                s_class.objects.batch(
+                                                    *objects_to_add
+                                                )
+
+                                                objects_to_add = []
+                                                time.sleep(1)  # avoid throttling;
+
+                                            batched_syncano_object = s_class.objects.as_batch().create(**syncano_object)
+                                            objects_to_add.append(batched_syncano_object)
+
+                                        if objects_to_add:
+                                            s_class.objects.batch(
+                                                *objects_to_add
+                                            )
 
     def get_syncano_instance(self):
         try:
