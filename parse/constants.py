@@ -5,3 +5,4 @@ class ParseFieldTypeE(object):
     POINTER = 'Pointer'
     ARRAY = 'Array'
     OBJECT = 'Object'
+    FILE = 'File'

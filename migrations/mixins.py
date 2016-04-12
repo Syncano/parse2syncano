@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-
 import syncano
-
 from parse.connection import ParseConnection
 from settings import (PARSE_APPLICATION_ID, PARSE_MASTER_KEY,
                       PARSE_PAGINATION_LIMIT, SYNCANO_ADMIN_API_KEY,

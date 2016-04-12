@@ -2,6 +2,8 @@
 
 import json
 
+import requests
+
 from log_handler import log
 from parse.constants import ParseFieldTypeE
 
@@ -30,6 +32,7 @@ class ClassProcessor(object):
         'Array': 'array',
         'Object': 'object',
         'Pointer': 'reference',
+        'File': 'file',
     }
 
     @classmethod
@@ -56,6 +59,7 @@ class ClassProcessor(object):
     def process_object(cls, parse_object, reference_map):
         syncano_fields = ClassProcessor.get_fields(parse_object.keys())
         processed_object = {}
+        files = {}
         for key, value in parse_object.iteritems():
             if isinstance(value, dict):
                 if '__type' in value:
@@ -63,6 +67,14 @@ class ClassProcessor(object):
                         processed_object[key.lower()] = value['iso']
                     if value['__type'] == ParseFieldTypeE.POINTER:
                         processed_object[key.lower()] = reference_map.get(value['objectId'])
+                    if value['__type'] == ParseFieldTypeE.FILE:
+                        file_data = requests.get(value['url'])
+                        file_path = '/tmp/{}'.format(value['name'])
+                        with open(file_path, 'w+') as file_d:
+                            file_d.write(file_data.content)
+                        file_descriptor = open(file_path, 'r')
+                        files[key] = file_descriptor
+
                 else:  # and 'Object' case
                     processed_object[key.lower()] = json.dumps(value)
             elif isinstance(value, list):
@@ -77,7 +89,7 @@ class ClassProcessor(object):
             else:
                 if key.lower() in syncano_fields:
                     processed_object[key.lower()] = value
-        return processed_object
+        return processed_object, files
 
     @classmethod
     def create_schema(cls, parse_schema):

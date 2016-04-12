@@ -8,6 +8,7 @@ from migrations.mixins import (PaginationMixin, ParseConnectionMixin,
 from migrations.relation import RelationProcessor
 from processors.klass import ClassProcessor
 from settings import PARSE_PAGINATION_LIMIT, SYNCANO_INSTANCE_NAME
+from syncano.models import Object
 
 
 class SyncanoTransfer(ParseConnectionMixin, SyncanoConnectionMixin, PaginationMixin):
@@ -16,6 +17,7 @@ class SyncanoTransfer(ParseConnectionMixin, SyncanoConnectionMixin, PaginationMi
         super(SyncanoTransfer, self).__init__()
         self.data = data_aggregate
         self.syncano_classes = {}
+        self.file_descriptors = {}
         self.relations = None
 
     def set_relations(self, relations):
@@ -75,8 +77,11 @@ class SyncanoTransfer(ParseConnectionMixin, SyncanoConnectionMixin, PaginationMi
                 parse_ids = []
                 for data_object in objects['results']:
                     s_class = self.get_class(instance=instance, class_name=class_to_process.syncano_name)
-                    syncano_object = ClassProcessor.process_object(data_object, self.data.reference_map)
-
+                    syncano_object, files = ClassProcessor.process_object(data_object, self.data.reference_map)
+                    if files:
+                        self.file_descriptors[data_object['objectId']] = (files,
+                                                                          class_to_process.syncano_name,
+                                                                          class_to_process.parse_name)
                     if len(objects_to_add) == 10:
                         processed += 10
                         created_objects = s_class.objects.batch(
@@ -105,6 +110,15 @@ class SyncanoTransfer(ParseConnectionMixin, SyncanoConnectionMixin, PaginationMi
                                                                                   len(objects_to_add),
                                                                                   class_to_process.syncano_name))
 
+    def transfer_files(self):
+        for parse_id, (files, syncano_class_name, parse_class_name) in self.file_descriptors.iteritems():
+            Object.please.update(
+                class_name=syncano_class_name,
+                id=self.data.reference_map[parse_class_name][parse_id],
+                files=files
+            )
+            time.sleep(4)  # avoid throttling;
+
     def get_class(self, instance, class_name):
         s_class = self.syncano_classes.get(class_name)
         if not s_class:
@@ -116,4 +130,5 @@ class SyncanoTransfer(ParseConnectionMixin, SyncanoConnectionMixin, PaginationMi
         instance = self.get_syncano_instance()
         self.transfer_classes(instance)
         self.transfer_objects(instance)
+        self.transfer_files()
         self.process_relations(instance)

@@ -2,13 +2,12 @@
 # a relation helper
 import time
 
-from syncano.models import Object
-
 from log_handler import log
 from migrations.aggregation import data_aggregate
 from migrations.mixins import PaginationMixin, ParseConnectionMixin
 from processors.klass import ClassProcessor
 from settings import PARSE_PAGINATION_LIMIT
+from syncano.models import Object
 
 
 class RelationProcessor(ParseConnectionMixin, PaginationMixin):
