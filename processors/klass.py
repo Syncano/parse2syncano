@@ -33,6 +33,7 @@ class ClassProcessor(object):
         'Object': 'object',
         'Pointer': 'reference',
         'File': 'file',
+        'GeoPoint': 'geopoint',
     }
 
     @classmethod
@@ -65,15 +66,18 @@ class ClassProcessor(object):
                 if '__type' in value:
                     if value['__type'] == ParseFieldTypeE.DATE:
                         processed_object[key.lower()] = value['iso']
-                    if value['__type'] == ParseFieldTypeE.POINTER:
+                    elif value['__type'] == ParseFieldTypeE.POINTER:
                         processed_object[key.lower()] = reference_map.get(value['objectId'])
-                    if value['__type'] == ParseFieldTypeE.FILE:
+                    elif value['__type'] == ParseFieldTypeE.FILE:
                         file_data = requests.get(value['url'])
                         file_path = '/tmp/{}'.format(value['name'])
                         with open(file_path, 'w+') as file_d:
                             file_d.write(file_data.content)
                         file_descriptor = open(file_path, 'r')
                         files[key] = file_descriptor
+                    elif value['__type'] == ParseFieldTypeE.GEO_POINT:
+                        print(value)
+                        processed_object[key.lower()] = {'longitude': value['longitude'], 'latitude': value['latitude']}
 
                 else:  # and 'Object' case
                     processed_object[key.lower()] = json.dumps(value)

@@ -6,3 +6,4 @@ class ParseFieldTypeE(object):
     ARRAY = 'Array'
     OBJECT = 'Object'
     FILE = 'File'
+    GEO_POINT = 'GeoPoint'
