@@ -4,8 +4,8 @@ import json
 
 import requests
 
-from log_handler import log
-from parse.constants import ParseFieldTypeE
+from parse_to_syncano import log
+from parse_to_syncano.parse.constants import ParseFieldTypeE
 
 
 class SyncanoSchema(object):

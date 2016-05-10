@@ -1,5 +1,9 @@
+# -*- coding: utf-8 -*-
 # create console handler and set level to debug
 import logging
+
+__version__ = '0.0.1'
+VERSION = __version__
 
 handler = logging.StreamHandler()
 handler.setLevel(logging.DEBUG)

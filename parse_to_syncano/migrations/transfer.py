@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import time
 
-from log_handler import log
-from migrations.aggregation import data_aggregate
-from migrations.mixins import PaginationMixin, ParseConnectionMixin, SyncanoConnectionMixin
-from migrations.relation import RelationProcessor
-from processors.klass import ClassProcessor
-from settings import PARSE_PAGINATION_LIMIT, SYNCANO_INSTANCE_NAME
+from parse_to_syncano import log
+from parse_to_syncano.migrations.aggregation import data_aggregate
+from parse_to_syncano.migrations.mixins import PaginationMixin, ParseConnectionMixin, SyncanoConnectionMixin
+from parse_to_syncano.migrations.relation import RelationProcessor
+from parse_to_syncano.processors.klass import ClassProcessor
+from parse_to_syncano.settings import PARSE_PAGINATION_LIMIT, SYNCANO_INSTANCE_NAME
 from syncano.models import Object
 
 
