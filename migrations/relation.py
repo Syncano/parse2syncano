@@ -45,9 +45,8 @@ class RelationProcessor(ParseConnectionMixin, PaginationMixin):
                                                     "_add": [
                                                         self.reference_map[target_name][
                                                             data_object['objectId']
-                                                        ]
-                                                        for data_object in objects['results']]
-                                                    },
+                                                        ] for data_object in objects['results']]
+                                                },
                                                 "class_name": class_name,
                                                 "id": syncano_id,
                                                 "instance_name": instance.name

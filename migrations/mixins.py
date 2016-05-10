@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
-import sys
-sys.path.append('/home/sopalczy/projects/syncano/syncano-python')
 
 import syncano
 from parse.connection import ParseConnection
-from settings import (PARSE_APPLICATION_ID, PARSE_MASTER_KEY,
-                      PARSE_PAGINATION_LIMIT, SYNCANO_ADMIN_API_KEY,
-                      SYNCANO_APIROOT, SYNCANO_INSTANCE_NAME)
+from settings import (
+    PARSE_APPLICATION_ID,
+    PARSE_MASTER_KEY,
+    PARSE_PAGINATION_LIMIT,
+    SYNCANO_ADMIN_API_KEY,
+    SYNCANO_APIROOT,
+    SYNCANO_INSTANCE_NAME
+)
 
 
 class ParseConnectionMixin(object):

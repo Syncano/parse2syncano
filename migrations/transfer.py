@@ -3,8 +3,7 @@ import time
 
 from log_handler import log
 from migrations.aggregation import data_aggregate
-from migrations.mixins import (PaginationMixin, ParseConnectionMixin,
-                               SyncanoConnectionMixin)
+from migrations.mixins import PaginationMixin, ParseConnectionMixin, SyncanoConnectionMixin
 from migrations.relation import RelationProcessor
 from processors.klass import ClassProcessor
 from settings import PARSE_PAGINATION_LIMIT, SYNCANO_INSTANCE_NAME
