@@ -56,7 +56,7 @@ class SyncanoTransfer(ParseConnectionMixin, SyncanoConnectionMixin, PaginationMi
             try:
                 instance.classes.create(name=class_to_process.syncano_name, schema=class_to_process.syncano_schema)
             except Exception as e:
-                log.error('Class already defined in this instance: {}/{}'.format(syncano_schema.class_name,
+                log.error('Class already defined in this instance: {}/{}'.format(class_to_process.syncano_name,
                                                                                  instance.name))
                 log.error(e.message)
 

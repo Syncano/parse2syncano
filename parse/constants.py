@@ -7,3 +7,4 @@ class ParseFieldTypeE(object):
     OBJECT = 'Object'
     FILE = 'File'
     GEO_POINT = 'GeoPoint'
+    RELATION = 'Relation'

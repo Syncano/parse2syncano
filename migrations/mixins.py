@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
-sys.path.append('/home/sopalczy/project/syncano/syncano-python')
+sys.path.append('/home/sopalczy/projects/syncano/syncano-python')
 
 import syncano
 from parse.connection import ParseConnection
