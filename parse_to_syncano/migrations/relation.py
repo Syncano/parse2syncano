@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 # a relation helper
-
+from parse_to_syncano import log
 from parse_to_syncano.migrations.aggregation import data_aggregate
 from parse_to_syncano.migrations.mixins import PaginationMixin, ParseConnectionMixin
 from parse_to_syncano.processors.klass import ClassProcessor
-from parse_to_syncano.settings import PARSE_PAGINATION_LIMIT
+from parse_to_syncano.config import PARSE_PAGINATION_LIMIT
 from syncano.models import Object
 
 
@@ -16,6 +16,7 @@ class RelationProcessor(ParseConnectionMixin, PaginationMixin):
         self.reference_map = data_aggregate.reference_map
 
     def process(self, instance):
+        log.info('Processing relations...')
         for class_relation in self.relations:
             for class_name, relations in class_relation.iteritems():
                 for relation in relations:

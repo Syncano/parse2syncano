@@ -2,14 +2,7 @@
 
 import syncano
 from parse_to_syncano.parse.connection import ParseConnection
-from parse_to_syncano.settings import (
-    PARSE_APPLICATION_ID,
-    PARSE_MASTER_KEY,
-    PARSE_PAGINATION_LIMIT,
-    SYNCANO_ADMIN_API_KEY,
-    SYNCANO_APIROOT,
-    SYNCANO_INSTANCE_NAME
-)
+from parse_to_syncano.config import config, PARSE_PAGINATION_LIMIT
 
 
 class ParseConnectionMixin(object):
@@ -22,8 +15,8 @@ class ParseConnectionMixin(object):
             return self._parse
 
         parse_connection = ParseConnection(
-            application_id=PARSE_APPLICATION_ID,
-            master_key=PARSE_MASTER_KEY,
+            application_id=config.get('P2S', 'PARSE_APPLICATION_ID'),
+            master_key=config.get('P2S', 'PARSE_MASTER_KEY'),
         )
 
         self._parse = parse_connection
@@ -40,9 +33,9 @@ class SyncanoConnectionMixin(object):
             return self._syncano
 
         syncano_connection = syncano.connect(
-            api_key=SYNCANO_ADMIN_API_KEY,
-            host=SYNCANO_APIROOT,
-            instance_name=SYNCANO_INSTANCE_NAME,
+            api_key=config.get('P2S', 'SYNCANO_ADMIN_API_KEY'),
+            host=config.get('P2S', 'SYNCANO_APIROOT'),
+            instance_name=config.get('P2S', 'SYNCANO_INSTANCE_NAME'),
         )
 
         self._syncano = syncano_connection

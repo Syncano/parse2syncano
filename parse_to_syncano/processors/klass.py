@@ -88,7 +88,7 @@ class ClassProcessor(object):
                 for i, item in enumerate(value):
                     if isinstance(item, dict):
                         if item.get('__type') == ParseFieldTypeE.POINTER:
-                            log.warn('Array of pointers not supported, writing: {}'.format(item.get('objectId')))
+                            log.warning('Array of pointers not supported, writing: {}'.format(item.get('objectId')))
                             value[i] = item['objectId']
                 values_list = json.dumps(value)
                 processed_object[key.lower()] = values_list

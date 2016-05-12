@@ -24,6 +24,6 @@ setup(
     ],
     entry_points="""
         [console_scripts]
-        parse2syncano=parse_to_syncano.moses:transfer
+        parse2syncano=parse_to_syncano.moses:parse2syncano
     """
 )
