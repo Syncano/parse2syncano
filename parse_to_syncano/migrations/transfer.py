@@ -2,11 +2,11 @@
 import time
 
 from parse_to_syncano import log
+from parse_to_syncano.config import PARSE_PAGINATION_LIMIT, config
 from parse_to_syncano.migrations.aggregation import data_aggregate
 from parse_to_syncano.migrations.mixins import PaginationMixin, ParseConnectionMixin, SyncanoConnectionMixin
 from parse_to_syncano.migrations.relation import RelationProcessor
 from parse_to_syncano.processors.klass import ClassProcessor
-from parse_to_syncano.config import PARSE_PAGINATION_LIMIT, config
 from syncano.models import Object
 
 

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import syncano
+from parse_to_syncano.config import PARSE_PAGINATION_LIMIT, config
 from parse_to_syncano.parse.connection import ParseConnection
-from parse_to_syncano.config import config, PARSE_PAGINATION_LIMIT
 
 
 class ParseConnectionMixin(object):

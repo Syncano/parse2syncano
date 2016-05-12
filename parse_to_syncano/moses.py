@@ -1,14 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import argparse
-import sys
-
-sys.path.append('/home/sopalczy/projects/syncano/parse2syncano/')
-sys.path.append('/home/sopalczy/projects/syncano/syncano-python/')
 
 from parse_to_syncano import log
+from parse_to_syncano.config import CONFIG_VARIABLES_NAMES, P2S_CONFIG_PATH, config
 from parse_to_syncano.migrations.transfer import SyncanoTransfer
-from parse_to_syncano.config import config, P2S_CONFIG_PATH, CONFIG_VARIABLES_NAMES
 
 COMMANDS = {}
 

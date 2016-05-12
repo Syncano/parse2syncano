@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from ConfigParser import ConfigParser
 import os
+from ConfigParser import ConfigParser
 
 CONFIG_VARIABLES_NAMES = ['PARSE_MASTER_KEY', 'PARSE_APPLICATION_ID', 'SYNCANO_APIROOT',
                           'SYNCANO_ADMIN_API_KEY', 'SYNCANO_INSTANCE_NAME']
