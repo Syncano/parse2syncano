@@ -2,8 +2,10 @@
 
 import json
 
-from log_handler import log
-from parse.constants import ParseFieldTypeE
+import requests
+
+from parse_to_syncano import log
+from parse_to_syncano.parse.constants import ParseFieldTypeE
 
 
 class SyncanoSchema(object):
@@ -30,6 +32,9 @@ class ClassProcessor(object):
         'Array': 'array',
         'Object': 'object',
         'Pointer': 'reference',
+        'File': 'file',
+        'GeoPoint': 'geopoint',
+        'Relation': 'relation',
     }
 
     @classmethod
@@ -56,13 +61,26 @@ class ClassProcessor(object):
     def process_object(cls, parse_object, reference_map):
         syncano_fields = ClassProcessor.get_fields(parse_object.keys())
         processed_object = {}
+        files = {}
         for key, value in parse_object.iteritems():
             if isinstance(value, dict):
                 if '__type' in value:
                     if value['__type'] == ParseFieldTypeE.DATE:
                         processed_object[key.lower()] = value['iso']
-                    if value['__type'] == ParseFieldTypeE.POINTER:
+                    elif value['__type'] == ParseFieldTypeE.POINTER:
                         processed_object[key.lower()] = reference_map.get(value['objectId'])
+                    elif value['__type'] == ParseFieldTypeE.FILE:
+                        file_data = requests.get(value['url'])
+                        file_path = '/tmp/{}'.format(value['name'])
+                        with open(file_path, 'w+') as file_d:
+                            file_d.write(file_data.content)
+                        file_descriptor = open(file_path, 'r')
+                        files[key] = file_descriptor
+                    elif value['__type'] == ParseFieldTypeE.GEO_POINT:
+                        processed_object[key.lower()] = {'longitude': value['longitude'], 'latitude': value['latitude']}
+                    elif value['__type'] == ParseFieldTypeE.RELATION:
+                        continue  # will be handled in RelationProcessor
+
                 else:  # and 'Object' case
                     processed_object[key.lower()] = json.dumps(value)
             elif isinstance(value, list):
@@ -70,14 +88,14 @@ class ClassProcessor(object):
                 for i, item in enumerate(value):
                     if isinstance(item, dict):
                         if item.get('__type') == ParseFieldTypeE.POINTER:
-                            log.warn('Array of pointers not supported, writing: {}'.format(item.get('objectId')))
+                            log.warning('Array of pointers not supported, writing: {}'.format(item.get('objectId')))
                             value[i] = item['objectId']
                 values_list = json.dumps(value)
                 processed_object[key.lower()] = values_list
             else:
                 if key.lower() in syncano_fields:
                     processed_object[key.lower()] = value
-        return processed_object
+        return processed_object, files
 
     @classmethod
     def create_schema(cls, parse_schema):
@@ -88,28 +106,46 @@ class ClassProcessor(object):
         """
 
         FIELDS_TO_SKIP = ['updatedAt', 'createdAt', 'ACL']  # TODO: handle ACL later on
-
+        class_name = cls.normalize_class_name(parse_schema['className'])
         schema = []
         relations = []
         for field, field_meta in parse_schema['fields'].iteritems():
             if field not in FIELDS_TO_SKIP:
                 type = field_meta['type']
-                if type in ['Relation']:  # TODO: skip for now
-                    field_meta['targetClass'] = field_meta['targetClass']
+                new_type = ClassProcessor.map[type]
+
+                if type == 'Relation':
+                    if class_name == cls.normalize_class_name(field_meta['targetClass']):
+                        target = 'self'
+                    else:
+                        target = cls.normalize_class_name(field_meta['targetClass'])
+                    schema.append({
+                        'name': field.lower(),
+                        'type': new_type,
+                        'target': target
+                    })
                     relations.append({field: field_meta})
                     continue
 
-                new_type = ClassProcessor.map[type]
-
                 if field == 'objectId':
-                    schema.append({'name': field.lower(), 'type': new_type, 'filter_index': True})
-                elif new_type == 'reference':
-                    schema.append({'name': field.lower(), 'type': new_type,
-                                   'target': cls.normalize_class_name(field_meta['targetClass'])})
-                else:
-                    schema.append({'name': field.lower(), 'type': new_type})
-        name = cls.normalize_class_name(parse_schema['className'])
-        return SyncanoSchema(class_name=name, schema=schema, relations=relations)
+                    schema.append({
+                        'name': field.lower(),
+                        'type': new_type,
+                        'filter_index': True
+                    })
+                    continue
+
+                if new_type == 'reference':
+                    schema.append({
+                        'name': field.lower(),
+                        'type': new_type,
+                        'target': cls.normalize_class_name(field_meta['targetClass'])}
+                    )
+                    continue
+
+                schema.append({'name': field.lower(), 'type': new_type})
+
+        return SyncanoSchema(class_name=class_name, schema=schema, relations=relations)
 
     @classmethod
     def normalize_class_name(cls, class_name):

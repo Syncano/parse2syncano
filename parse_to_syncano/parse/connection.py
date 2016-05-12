@@ -3,7 +3,7 @@ import json
 
 import requests
 
-from parse.rest_map import PARSE_API_MAP
+from parse_to_syncano.parse.rest_map import PARSE_API_MAP
 
 
 class ParseConnection(object):
