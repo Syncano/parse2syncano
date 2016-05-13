@@ -18,6 +18,12 @@ setup(
     url='http://syncano.com',
     packages=find_packages(),
     zip_safe=False,
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+    ],
     install_requires=[
         'syncano>=5.1.0'
     ],
