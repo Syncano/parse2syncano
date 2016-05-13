@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from setuptools import find_packages, setup
-
 from parse_to_syncano import __version__
+from setuptools import find_packages, setup
 
 
 def readme():

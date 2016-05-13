@@ -3,7 +3,6 @@
 import json
 
 import requests
-
 from parse_to_syncano import log
 from parse_to_syncano.parse.constants import ParseFieldTypeE
 

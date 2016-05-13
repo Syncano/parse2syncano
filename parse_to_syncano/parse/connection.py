@@ -2,7 +2,6 @@
 import json
 
 import requests
-
 from parse_to_syncano.parse.rest_map import PARSE_API_MAP
 
 
