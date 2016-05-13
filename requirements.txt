@@ -1,2 +1,2 @@
-syncano==5.0.2
+syncano==5.1.0
 requests==2.9.1

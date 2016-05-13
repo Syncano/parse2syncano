@@ -20,7 +20,7 @@ setup(
     packages=find_packages(),
     zip_safe=False,
     install_requires=[
-        'syncano>=5.0.2'
+        'syncano>=5.1.0'
     ],
     entry_points="""
         [console_scripts]

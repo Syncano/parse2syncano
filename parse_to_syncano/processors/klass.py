@@ -65,37 +65,48 @@ class ClassProcessor(object):
         for key, value in parse_object.iteritems():
             if isinstance(value, dict):
                 if '__type' in value:
-                    if value['__type'] == ParseFieldTypeE.DATE:
-                        processed_object[key.lower()] = value['iso']
-                    elif value['__type'] == ParseFieldTypeE.POINTER:
-                        processed_object[key.lower()] = reference_map.get(value['objectId'])
-                    elif value['__type'] == ParseFieldTypeE.FILE:
-                        file_data = requests.get(value['url'])
-                        file_path = '/tmp/{}'.format(value['name'])
-                        with open(file_path, 'w+') as file_d:
-                            file_d.write(file_data.content)
-                        file_descriptor = open(file_path, 'r')
-                        files[key] = file_descriptor
-                    elif value['__type'] == ParseFieldTypeE.GEO_POINT:
-                        processed_object[key.lower()] = {'longitude': value['longitude'], 'latitude': value['latitude']}
-                    elif value['__type'] == ParseFieldTypeE.RELATION:
+                    if value['__type'] == ParseFieldTypeE.RELATION:
                         continue  # will be handled in RelationProcessor
-
+                    cls._process_field_with_type(key, value, processed_object, files, reference_map)
                 else:  # and 'Object' case
                     processed_object[key.lower()] = json.dumps(value)
             elif isinstance(value, list):
+                cls._process_array_field(key, value, processed_object)
 
-                for i, item in enumerate(value):
-                    if isinstance(item, dict):
-                        if item.get('__type') == ParseFieldTypeE.POINTER:
-                            log.warning('Array of pointers not supported, writing: {}'.format(item.get('objectId')))
-                            value[i] = item['objectId']
-                values_list = json.dumps(value)
-                processed_object[key.lower()] = values_list
             else:
-                if key.lower() in syncano_fields:
-                    processed_object[key.lower()] = value
+                cls._process_other_fields(key, value, processed_object, syncano_fields)
         return processed_object, files
+
+    @classmethod
+    def _process_field_with_type(cls, key, value, processed_object, files, reference_map):
+        if value['__type'] == ParseFieldTypeE.DATE:
+            processed_object[key.lower()] = value['iso']
+        elif value['__type'] == ParseFieldTypeE.POINTER:
+            processed_object[key.lower()] = reference_map.get(value['objectId'])
+        elif value['__type'] == ParseFieldTypeE.FILE:
+            file_data = requests.get(value['url'])
+            file_path = '/tmp/{}'.format(value['name'])
+            with open(file_path, 'w+') as file_d:
+                file_d.write(file_data.content)
+            file_descriptor = open(file_path, 'r')
+            files[key] = file_descriptor
+        elif value['__type'] == ParseFieldTypeE.GEO_POINT:
+            processed_object[key.lower()] = {'longitude': value['longitude'], 'latitude': value['latitude']}
+
+    @classmethod
+    def _process_array_field(cls, key, value, processed_object):
+        for i, item in enumerate(value):
+            if isinstance(item, dict):
+                if item.get('__type') == ParseFieldTypeE.POINTER:
+                    log.warning('Array of pointers not supported, writing: {}'.format(item.get('objectId')))
+                    value[i] = item['objectId']
+        values_list = json.dumps(value)
+        processed_object[key.lower()] = values_list
+
+    @classmethod
+    def _process_other_fields(cls, key, value, processed_object, syncano_fields):
+        if key.lower() in syncano_fields:
+            processed_object[key.lower()] = value
 
     @classmethod
     def create_schema(cls, parse_schema):
