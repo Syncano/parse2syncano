@@ -66,8 +66,8 @@ please write: sebastian.opalczynski@syncano.com
 
 4. The Syncano can be found on - please do not hesitate to ask for help or share your thoughts:
 
-  * Github: https://github.com/Syncano/
-  * Gitter:
-    * https://gitter.im/Syncano/community
-    * https://gitter.im/Syncano/community-pl
-  * Slack: http://syncano-community.github.io/slack-invite/
+* Github: https://github.com/Syncano/
+* Gitter:
+  * https://gitter.im/Syncano/community
+  * https://gitter.im/Syncano/community-pl
+* Slack: http://syncano-community.github.io/slack-invite/
