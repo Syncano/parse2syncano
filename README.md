@@ -1,6 +1,6 @@
 # Syncano Parse migration tool
 
-This tool will help you to move your data from parse to syncano.
+This tool will help you to move your data from Parse to Syncano.
 
 ## Installation
 

@@ -1,0 +1,12 @@
+machine:
+  python:
+    version: 2.7.5
+
+dependencies:
+  pre:
+    - pip install -U setuptools
+    - pip install -r requirements.txt
+
+test:
+  override:
+    - ./run_tests.sh
