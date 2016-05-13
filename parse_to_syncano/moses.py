@@ -104,9 +104,6 @@ def parse2syncano():
         description='Parse -> Syncano transfer tool.'
     )
 
-    parser.add_argument('--config', default=P2S_CONFIG_PATH,
-                        help='Parse to Syncano configuration file path.')
-
     subparsers = parser.add_subparsers(
         title='subcommands',
         description='valid subcommands'
