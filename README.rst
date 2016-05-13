@@ -54,20 +54,22 @@ the output.
 Tips & Troubleshooting
 ----------------------
 
-1. Tool currently do not support checking if some object is already present in the Syncano instance, so if when sync 
-is run twice the end results is that data is doubled. To avoid such cases - simply remove your instance 
-in Syncano dashboard.
+1. Tool currently do not support checking if some object is already present in the Syncano instance, 
+   so if when sync is run twice the end results is that data is doubled. To avoid such cases - 
+   simply remove your instance in Syncano dashboard;
 
-2. The process can be quite slow - it's because of the throttling on both sides: Parse and Syncano 
-on free accounts (which is the bottom boundary for scripts);
+2. The process can be quite slow - it's because of the throttling on both sides: Parse and Syncano on free accounts 
+   (which is the bottom boundary for scripts);
 
-3. If you encounter any problems, have some improvements proposal or just wanna talk, 
-please write: sebastian.opalczynski@syncano.com
+3. If you encounter any problems, have some improvements proposal or just wanna talk,
+   please write: sebastian.opalczynski@syncano.com;
 
-4. The Syncano can be found on - please do not hesitate to ask for help or share your thoughts:
+4. The Syncano can be found on - please do not hesitate to ask for help or share your thoughts;
 
-* Github: https://github.com/Syncano/
+* Github: 
+    * https://github.com/Syncano/
 * Gitter:
-  * https://gitter.im/Syncano/community
-  * https://gitter.im/Syncano/community-pl
-* Slack: http://syncano-community.github.io/slack-invite/
+    * https://gitter.im/Syncano/community
+    * https://gitter.im/Syncano/community-pl
+* Slack: 
+    * http://syncano-community.github.io/slack-invite/
