@@ -10,3 +10,11 @@ dependencies:
 test:
   override:
     - ./run_tests.sh
+
+deployment:
+  production:
+    branch: master
+    commands:
+      - git config --global user.email "ci@circleci.com"
+      - git config --global user.name "CircleCI"
+      - ./release.sh

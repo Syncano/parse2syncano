@@ -9,7 +9,7 @@ def readme():
         return f.read()
 
 setup(
-    name='parse_to_syncano',
+    name='parse2syncano',
     version=__version__,
     description='A Syncano tool for migrate the Parse data',
     long_description=readme(),
