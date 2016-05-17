@@ -13,8 +13,8 @@ Installation
 Usage
 -----
 
-Currently supports only transfer the data. Tool takes the parse schemas and transform it to the Syncano classes. 
-Next step is to move all of the data between parse and Syncano. The last step is rebuilding the relations between
+Currently supports only transferring data. This tool takes the Parse schemas and transform them to Syncano classes.
+Next step is to move all of the data between Parse and Syncano. The last step is rebuilding the relations between
 objects.
 
 
@@ -27,13 +27,13 @@ Configuration
 
 Will run the configuration that will ask you for the following variables:
 
-* PARSE_MASTER_KEY: the master key of your PARSE 
+* PARSE_MASTER_KEY: the master key of your PARSE account;
 * PARSE_APPLICATION_ID: the application ID of the application that you want to transfer;
-* SYNCANO_ADMIN_API_KEY: the Syncano admin api key;
+* SYNCANO_ADMIN_API_KEY: the Syncano admin API key;
 * SYNCANO_INSTANCE_NAME: the Syncano instance name to which the transfer will be made;
 * SYNCANO_APIROOT: will not show as it has a default equal to: https://api.syncano.io/
 
-`parse2syncano configure` command will take following paramters:
+`parse2syncano configure` command will take following parameters:
 
 * -c (--current) which will display the current configuration;
 * -f (--force) which allow to override the previously set configuration; 
@@ -48,21 +48,21 @@ Run transfer
 
     parse2syncano sync
 
-This command will run the synchronization process between parse and Syncano. Sit comfortable in your chair and read
+This command will run the synchronization process between Parse and Syncano. Sit comfortably in your chair and read
 the output.
 
 Tips & Troubleshooting
 ----------------------
 
-1. Tool currently do not support checking if some object is already present in the Syncano instance, 
-   so if when sync is run twice the end results is that data is doubled. To avoid such cases - 
-   simply remove your instance in Syncano dashboard;
+1. This tool currently does not support checking if some object is already present in the Syncano instance,
+   so if sync is run twice the end results is that data is doubled. To avoid such cases,
+   simply remove your instance in the Syncano dashboard;
 
 2. The process can be quite slow - it's because of the throttling on both sides: Parse and Syncano on free accounts 
    (which is the bottom boundary for scripts);
 
 3. If you encounter any problems, have some improvements proposal or just wanna talk,
-   please write: sebastian.opalczynski@syncano.com;
+   please write me: sebastian.opalczynski@syncano.com;
 
 4. The Syncano can be found on - please do not hesitate to ask for help or share your thoughts;
 
