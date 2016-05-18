@@ -81,7 +81,7 @@ def sync(namespace):
                                  instance_name=instance_name)
                              ) or 'Y'
 
-    if confirmation != 'Y':
+    if confirmation.upper() != 'Y':
         return
 
     transfer = SyncanoTransfer()
