@@ -75,8 +75,8 @@ def sync(namespace):
     check_configuration(silent=True)
     application_id = config.get('P2S', 'PARSE_APPLICATION_ID')
     instance_name = config.get('P2S', 'SYNCANO_INSTANCE_NAME')
-    confirmation = raw_input('Are you sure you want to copy your data from PARSE application ({application_id})'
-                             'to the syncano isntance ({instance_name})? Y/N [Y]: '.format(
+    confirmation = raw_input('Are you sure you want to copy your data from Parse application ({application_id})'
+                             'to the Syncano Instance ({instance_name})? Y/N [Y]: '.format(
                                  application_id=application_id,
                                  instance_name=instance_name)
                              ) or 'Y'
@@ -90,7 +90,7 @@ def sync(namespace):
 
 @command
 @argument('-c', '--current', action='store_true', help="Show current configuration.")
-@argument('-f', '--force', action='store_true', help="Froce to overwrite previous config.")
+@argument('-f', '--force', action='store_true', help="Force to overwrite previous config.")
 def configure(namespace):
     """
     Configure the data needed for connection to the parse and syncano;
