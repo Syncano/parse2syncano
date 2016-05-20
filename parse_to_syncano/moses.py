@@ -76,12 +76,13 @@ def sync(namespace):
     application_id = config.get('P2S', 'PARSE_APPLICATION_ID')
     instance_name = config.get('P2S', 'SYNCANO_INSTANCE_NAME')
     confirmation = raw_input('Are you sure you want to copy your data from Parse application ({application_id})'
-                             'to the Syncano Instance ({instance_name})? Y/N [Y]: '.format(
+                             ' to the Syncano Isntance ({instance_name})? Y/N [Y]: '.format(
                                  application_id=application_id,
                                  instance_name=instance_name)
                              ) or 'Y'
 
-    if confirmation != 'Y':
+    if confirmation not in ['Y', 'YES', 'y', 'yes']:
+        log.info('Transfer aborted.')
         return
 
     transfer = SyncanoTransfer()
