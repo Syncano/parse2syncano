@@ -29,7 +29,7 @@ Will run the configuration that will ask you for the following variables:
 
 * PARSE_MASTER_KEY: the master key of your PARSE account;
 * PARSE_APPLICATION_ID: the application ID of the application that you want to transfer;
-* SYNCANO_ADMIN_API_KEY: the Syncano admin API key;
+* SYNCANO_ADMIN_API_KEY: Syncano Account Key;
 * SYNCANO_INSTANCE_NAME: the Syncano instance name to which the transfer will be made;
 * SYNCANO_APIROOT: will not show as it has a default equal to: https://api.syncano.io/
 
@@ -55,8 +55,8 @@ Tips & Troubleshooting
 ----------------------
 
 1. This tool currently does not support checking if some object is already present in the Syncano instance,
-   so if sync is run twice the end results is that data is doubled. To avoid such cases,
-   simply remove your instance in the Syncano dashboard;
+   so if sync is run twice the end results is that data is duplicated. To avoid such cases,
+   simply remove your instance in using Syncano dashboard;
 
 2. The process can be quite slow - it's because of the throttling on both sides: Parse and Syncano on free accounts 
    (which is the bottom boundary for scripts);
