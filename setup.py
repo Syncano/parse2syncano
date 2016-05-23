@@ -11,7 +11,7 @@ def readme():
 setup(
     name='parse2syncano',
     version=__version__,
-    description='A Syncano tool for migrate the Parse data',
+    description='A tool to migrate data from Parse to Syncano',
     long_description=readme(),
     author=u'Sebastian Opałczyński',
     author_email='sebastian.opalczynski@syncano.com',
