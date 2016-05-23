@@ -2,7 +2,7 @@
 # create console handler and set level to debug
 import logging
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 VERSION = __version__
 
 __author__ = "Sebastian Opalczynski"
